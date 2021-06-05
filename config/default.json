@@ -1,0 +1,23 @@
+{
+	"MiningWebsite":
+	{
+		"WebsiteHostname": "api.ethermine.org",
+		"WebsitePath1": "/miner/",
+		"WebsitePath2": "/worker/",
+		"WebsitePath3": "/history",
+		"PayoutAddress": ""
+	},
+
+	"Database":
+	{
+		"Username": "",
+		"Password": "",
+		"DatabaseHostname": ""
+	},
+
+	"MaticConfig":
+	{
+		"MaticRPCURL": "",
+		"MaticWETHTokenAddress": ""
+	}
+}
