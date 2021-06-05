@@ -1,73 +1,32 @@
 // Johnathan Burns
 // 2021-06-04
-// SubPool server application
+// SubPool server applet to update client data
 
 // Import/require all dependencies
 const MongoClient = require("mongodb").MongoClient;
-const Web3 = require("web3");
 const config = require('config');
 const https = require('https');
-
-/*----------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------*/
 
 // Read configuration file (config/default.json)
 const webConfig = config.get('MiningWebsite');
 const dbConfig = config.get('Database');
-const maticConfig = config.get('MaticConfig');
 
 // Setup and confirm database connection first
 const databaseConnectionURI = 'mongodb://' + dbConfig.Username + ':' + dbConfig.Password + '@' + dbConfig.DatabaseHostname;
 
-// Setup web3 and subscription to specific events
-console.log("Connecting to RPC: " + maticConfig.MaticRPCURL);
-var web3 = new Web3(maticConfig.MaticRPCURL);
+// MAIN FUNCTION
+get_and_insert_all_miner_records();
 
-/*----------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------*/
-
-// TODO: Test the subscription method to make sure it does something
-
-var subscription = web3.eth.subscribe('logs', {
-	address: webConfig.MaticWETHTokenAddress,
-	topics: ['0xddf252ad'], // This is the ERC20 "Transfer" method
-}, function(error, result){
-	if(error)
-	{
-		console.error(result);
-	}
-	else
-	{
-		console.log(result);
-	}
-})
-.on("connected", function(subscriptionId){
-	console.log(subscriptionId);
-})
-.on("data", function(log){
-	console.log(log);
-})
-.on("changed", function(log){
-});
-
-//while(1); // Infinite loop to wait for subscription activity
-
-// MAIN
-update_all_worker_data();
-//get_worker_names( (names) => { console.log(names); });
-
-/*----------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------*/
 
 ///
 /// Get all worker names and update them with the latest data
 ///
-function update_all_worker_data()
+function get_and_insert_all_miner_records()
 {
-	get_worker_names( (names) => {
+	get_all_worker_names( (names) => {
 		for(let x of names)
 		{
-			get_worker_stats(x._id, (jsondata) =>
+			get_worker_records(x._id, (jsondata) =>
 			{
 				if(!isEmpty(jsondata.data))
 				{
@@ -107,14 +66,13 @@ function insert_worker_records(jsonData)
 			db.close();
 		});
 	});
-	//client.close();
 }
 
 ///
 /// Read out worker records from the database
 /// callback: <function(array)> Callback function to process name list
 ///
-function get_worker_names(callback)
+function get_all_worker_names(callback)
 {
 	let client = new MongoClient(databaseConnectionURI, {
 		useNewUrlParser: true,
@@ -131,26 +89,6 @@ function get_worker_names(callback)
 			db.close();
 		});
 	});
-
-	//client.close();
-}
-
-function get_worker_shares_from_db(workerName, shares)
-{
-	let client = new MongoClient(databaseConnectionURI, {
-		useNewUrlParser: true,
-		useUnifiedTopology: true,
-	});
-
-	client.connect(function(err, db) {
-		if(err) throw(err);
-		var dbo = db.db("workers");
-		dbo.collection(`${workerName}-sum`).find().toArray(function(err, results)
-		{
-			if(err) throw err;
-			shares = results.totalShares;
-		});
-	});
 }
 
 ///
@@ -158,7 +96,7 @@ function get_worker_shares_from_db(workerName, shares)
 /// workerName: <string> The name of the individual worker
 /// callback: <function(JSON Object)> Callback function to process the raw JSON worker stats
 ///
-function get_worker_stats(workerName, callback)
+function get_worker_records(workerName, callback)
 {
 	let options = {
 		hostname: webConfig.WebsiteHostname,
@@ -197,15 +135,6 @@ function get_worker_stats(workerName, callback)
 	});
 
 	req.end();
-}
-
-// TODO: Function to swap some WETH automatically for MATIC tokens
-
-
-// TODO: Initiate payout from WETH reciept
-function intiate_WETH_payout()
-{
-
 }
 
 // Check if an object (json data in this case) is empty
