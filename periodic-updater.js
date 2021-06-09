@@ -1,5 +1,5 @@
 // Johnathan Burns
-// 2021-06-04
+// 2021-06-06
 // SubPool server applet to update client data
 
 // Import/require all dependencies

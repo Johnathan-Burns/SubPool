@@ -9,6 +9,8 @@
   "author": "",
   "license": "GPL-3.0",
   "dependencies": {
+    "@ethereumjs/common": "^2.3.0",
+    "@ethereumjs/tx": "^3.2.0",
     "config": "^3.3.6",
     "jest": "^27.0.4",
     "mongodb": "^3.6.9",
